@@ -32,6 +32,17 @@ func TestStatementNegativeID(t *testing.T) {
 	}
 }
 
+func TestSerialization(t *testing.T) {
+	bs, err := sampleRow.Serialize()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if cap(bs) != 152 {
+		t.Errorf("Capacity for bs is wrong 152 != %v.\n", cap(bs))
+	}
+}
+
 func ExampleSelect() {
 	table := &Table{}
 	insertRow(table, sampleRow)

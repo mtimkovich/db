@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/gob"
 	"fmt"
 	"os"
 	"strings"
@@ -23,6 +25,24 @@ type Row struct {
 	Username string
 	Email    string
 }
+
+type RawRow []byte
+
+// Convert Row to []byte for use in pages
+func (r Row) Serialize() (RawRow, error) {
+	var buf bytes.Buffer
+
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+// func (r RawRow) Deserialize() Row {
+// }
 
 type Statement struct {
 	Type        StatementType
