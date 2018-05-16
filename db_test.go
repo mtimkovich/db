@@ -12,7 +12,7 @@ func insertRow(table *Table, row Row) {
 }
 
 func TestInsert(t *testing.T) {
-	table := &Table{}
+	table := NewTable()
 	insertRow(table, sampleRow)
 
 	if len(table.Rows) != 1 {
@@ -28,23 +28,28 @@ func TestStatementNegativeID(t *testing.T) {
 	statement, err := NewStatement("insert -3 max max@max.com")
 
 	if err == nil {
-		t.Errorf("Creation of statement with negative ID should have failed: '%v'.\n", statement)
+		t.Errorf("Creation of statement with negative ID should've failed: '%v'.\n", statement)
 	}
 }
 
 func TestSerialization(t *testing.T) {
-	bs, err := sampleRow.Serialize()
+	raw, err := sampleRow.Serialize()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if cap(bs) != 152 {
-		t.Errorf("Capacity for bs is wrong 152 != %v.\n", cap(bs))
+	deserial, err := raw.Deserialize()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if deserial != sampleRow {
+		t.Errorf("rows not equal '%v' != '%v'.\n", sampleRow, deserial)
 	}
 }
 
 func ExampleSelect() {
-	table := &Table{}
+	table := NewTable()
 	insertRow(table, sampleRow)
 
 	table.Execute(&Statement{STATEMENT_SELECT, Row{}})

@@ -16,8 +16,26 @@ const (
 	STATEMENT_SELECT
 )
 
+var PAGE_SIZE = os.Getpagesize()
+
 type Table struct {
-	Rows []Row
+	Rows      []Row
+	MAX_PAGES int
+}
+
+func NewTable() *Table {
+	return &Table{nil, 100}
+}
+
+func (t *Table) Execute(statement *Statement) {
+	switch statement.Type {
+	case STATEMENT_INSERT:
+		t.Rows = append(t.Rows, statement.RowToInsert)
+	case STATEMENT_SELECT:
+		for _, row := range t.Rows {
+			fmt.Println(row)
+		}
+	}
 }
 
 type Row struct {
@@ -41,8 +59,14 @@ func (r Row) Serialize() (RawRow, error) {
 	return buf.Bytes(), nil
 }
 
-// func (r RawRow) Deserialize() Row {
-// }
+// Convert RawRow back to Row. This destroys the RawRow
+func (r RawRow) Deserialize() (row Row, err error) {
+	buf := bytes.NewBuffer(r)
+	dec := gob.NewDecoder(buf)
+	err = dec.Decode(&row)
+
+	return
+}
 
 type Statement struct {
 	Type        StatementType
@@ -74,17 +98,6 @@ func NewStatement(input string) (*Statement, error) {
 	return s, nil
 }
 
-func (t *Table) Execute(statement *Statement) {
-	switch statement.Type {
-	case STATEMENT_INSERT:
-		t.Rows = append(t.Rows, statement.RowToInsert)
-	case STATEMENT_SELECT:
-		for _, row := range t.Rows {
-			fmt.Println(row)
-		}
-	}
-}
-
 func prompt(ps string) string {
 	fmt.Print(ps)
 	scanner := bufio.NewScanner(os.Stdin)
@@ -104,7 +117,7 @@ func doMetaCommand(input string) error {
 }
 
 func main() {
-	table := &Table{}
+	table := NewTable()
 
 	for {
 		input := prompt("db> ")

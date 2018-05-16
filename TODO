@@ -1,0 +1,2 @@
+- Figure out how to store Rows in page sized chunks
+- Write/read DB to/from disk
