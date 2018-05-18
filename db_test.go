@@ -32,20 +32,24 @@ func TestStatementNegativeID(t *testing.T) {
 	}
 }
 
-func TestSerialization(t *testing.T) {
-	raw, err := sampleRow.Serialize()
-	if err != nil {
-		t.Fatal(err)
-	}
+// func TestSerialization(t *testing.T) {
+// 	raw, err := sampleRow.Serialize()
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
 
-	deserial, err := raw.Deserialize()
-	if err != nil {
-		t.Fatal(err)
-	}
+// 	deserial, err := raw.Deserialize()
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
 
-	if deserial != sampleRow {
-		t.Errorf("rows not equal '%v' != '%v'.\n", sampleRow, deserial)
-	}
+// 	if deserial != sampleRow {
+// 		t.Errorf("rows not equal '%v' != '%v'.\n", sampleRow, deserial)
+// 	}
+// }
+
+func TestSize(t *testing.T) {
+	t.Log(sampleRow.Size())
 }
 
 func ExampleSelect() {

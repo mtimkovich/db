@@ -2,11 +2,10 @@ package main
 
 import (
 	"bufio"
-	"bytes"
-	"encoding/gob"
 	"fmt"
 	"os"
 	"strings"
+	"unsafe"
 )
 
 type StatementType int
@@ -44,29 +43,49 @@ type Row struct {
 	Email    string
 }
 
-type RawRow []byte
+func (r Row) Sizeof() int {
+	return int(unsafe.Sizeof(r)) + len(r.Username) + len(r.Email)
+}
 
-// Convert Row to []byte for use in pages
-func (r Row) Serialize() (RawRow, error) {
-	var buf bytes.Buffer
+type Page struct {
+	Rows []Row
+	Size int
+}
 
-	enc := gob.NewEncoder(&buf)
-	err := enc.Encode(r)
-	if err != nil {
-		return nil, err
+func (p *Page) Append(row Row) bool {
+	newSize := p.Size + row.Sizeof()
+
+	if newSize > PAGE_SIZE {
+		return false
 	}
 
-	return buf.Bytes(), nil
+	p.Rows = append(p.Rows, row)
+	p.Size = newSize
+
+	return true
 }
 
-// Convert RawRow back to Row. This destroys the RawRow
-func (r RawRow) Deserialize() (row Row, err error) {
-	buf := bytes.NewBuffer(r)
-	dec := gob.NewDecoder(buf)
-	err = dec.Decode(&row)
+// // Convert Row to []byte for use in pages
+// func (r Row) Serialize() (RawRow, error) {
+// 	var buf bytes.Buffer
 
-	return
-}
+// 	enc := gob.NewEncoder(&buf)
+// 	err := enc.Encode(r)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return buf.Bytes(), nil
+// }
+
+// // Convert RawRow back to Row. This destroys the RawRow
+// func (r RawRow) Deserialize() (row Row, err error) {
+// 	buf := bytes.NewBuffer(r)
+// 	dec := gob.NewDecoder(buf)
+// 	err = dec.Decode(&row)
+
+// 	return
+// }
 
 type Statement struct {
 	Type        StatementType
