@@ -63,7 +63,7 @@ func doMetaCommand(input string) error {
 }
 
 func main() {
-	db := &DB{}
+	db := NewDB()
 
 	for {
 		input := prompt("db> ")

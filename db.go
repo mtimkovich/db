@@ -31,12 +31,11 @@ func (d *DB) ActivePage() *Page {
 // Insert a row into the DB. If the page is full, make a new page! And add the row to that one.
 func (d *DB) Insert(row Row) error {
 	if !d.ActivePage().HasRoom(row) {
-		d.PageIndex++
-
-		if d.PageIndex > d.MAX_PAGES {
+		if d.PageIndex+1 > d.MAX_PAGES {
 			return errors.New("Error: Table full.")
 		}
 
+		d.PageIndex++
 		d.Pages = append(d.Pages, &Page{})
 	}
 
@@ -73,7 +72,7 @@ type Page struct {
 	Size int
 }
 
-// Keep each page about the size of a page
+// Keep each page about the size of an OS page
 func (p *Page) HasRoom(row Row) bool {
 	newSize := p.Size + row.Sizeof()
 
