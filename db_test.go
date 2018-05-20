@@ -2,22 +2,35 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"testing"
 )
 
+var sampleRow = Row{1, "max", "max@email.com"}
+
 func TestInsert(t *testing.T) {
 	db := NewDB()
 
-	row := Row{1, "max", "max@email.com"}
-	err := db.Insert(row)
-	if err != nil {
+	if err := db.Insert(sampleRow); err != nil {
 		t.Fatal(err)
 	}
 
-	if db.ActivePage().Rows[0] != row {
-		t.Error("Inserted row not equal to row.")
+	if db.ActivePage().Rows[0] != sampleRow {
+		t.Error("Inserted sampleRow not equal to Row.")
 	}
+}
+
+func ExampleSelect() {
+	db := NewDB()
+
+	if err := db.Insert(sampleRow); err != nil {
+		log.Fatal(err)
+	}
+
+	statement := &Statement{STATEMENT_SELECT, Row{}}
+	db.Execute(statement)
+	// Output: {1 max max@email.com}
 }
 
 func TestFull(t *testing.T) {
